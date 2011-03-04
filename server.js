@@ -1,31 +1,58 @@
 var express = require('express');
 var app = express.createServer();
 var valid = require('validator');
-
+var jade = require('jade');
 
 var TwilioClient = require('../node-twilio/lib').Client,
       Twiml = require('../node-twilio/lib').Twiml,
       sys = require('sys');
 
+ var client = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
 
 app.get('/', function(req, res){
 
+	var jadeopts = {
+	    locals: {
+		user: {
+		    name: 'Will',
+		    email: 'youname@malinator.com',
+		    city: 'Victoria',
+		    province: 'BC'
+		},
 
-var client = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
+		serveropts: {
+		    formActionUrl: '/call',
+		}
+	    }
+	};
 
-    res.send('<h1> Hi there. Im calling you! </h1>');
+	jade.renderFile(__dirname + '/form.jade', jadeopts, function(err, html){
+	    if (err) throw err;
+	//    console.log(html);
+
+	    //res.send('<h1> Hi there. Im calling you! </h1>' + html );
+	    res.send(html);
+	});
+
+
+
+
+});
+
+
+
 
 	// Let's get a PhoneNumber object
 	// Note: It is assumed that +16067777777 is a Twilio phone number available from your account
 	// Another note: You may pass in either a phone number or a phone number sid.
-	var phone = client.getPhoneNumber('+14505554288');
+	var phone = client.getPhoneNumber('+18888238895');
 
 	// Phone.setup() configures the phone number object. It requests the phone number instance
 	// resource associated with the number and populates an internal data structure representing itself.
 	// The callback passed in is called when setup completes.
 	phone.setup(function() {
 	    // Hey, let's call my parents!
-		phone.makeCall('+14045557777', null, function(call) {
+		phone.makeCall('+18674451795', null, function(call) {
 			// The callback for makeCall is passed a "call" object.
 			// This object is an event emitter.
 			
@@ -39,6 +66,8 @@ var client = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
 		});
 	
 	});
+
+
 
 });
 
