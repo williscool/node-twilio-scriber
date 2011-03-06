@@ -2,10 +2,15 @@ var express = require('express');
 var app = express.createServer();
 var valid = require('validator');
 var jade = require('jade');
+var logger = require('../node-logger').createLogger('development.log'); // logs to a file
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> da7ddcd... Added in status messages so I can tell whats going on when
 var TwilioClient = require('../node-twilio/lib').Client,
       Twiml = require('../node-twilio/lib').Twiml,
-      sys = require('sys');
+      util = require('util');
 
  var client = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
 
@@ -16,8 +21,6 @@ app.get('/', function(req, res){
 		user: {
 		    name: 'Will',
 		    email: 'youname@malinator.com',
-		    city: 'Victoria',
-		    province: 'BC'
 		},
 
 		serveropts: {
@@ -34,18 +37,30 @@ app.get('/', function(req, res){
 	    res.send(html);
 	});
 
-
-
-
 });
 
 
+<<<<<<< HEAD
+=======
+app.get('/call', function(req,res){
 
+	var options = {};
+	jade.renderFile(__dirname + '/makingCall.jade', options, function(err, html){
+	    if (err) throw err;
 
-	// Let's get a PhoneNumber object
-	// Note: It is assumed that +16067777777 is a Twilio phone number available from your account
-	// Another note: You may pass in either a phone number or a phone number sid.
-	var phone = client.getPhoneNumber('+18888238895');
+	    res.send(html);
+	}); 
+
+	console.log('call initiated');
+
+	// Phone.setup() configures the phone number object. It requests the phone number instance
+	// resource associated with the number and populates an internal data structure representing itself.
+	// The callback passed in is called when setup completes.
+
+	    res.send(html);
+	}); 
+
+	console.log('call initiated');
 
 	// Phone.setup() configures the phone number object. It requests the phone number instance
 	// resource associated with the number and populates an internal data structure representing itself.
@@ -55,13 +70,22 @@ app.get('/', function(req, res){
 		phone.makeCall('+18674451795', null, function(call) {
 			// The callback for makeCall is passed a "call" object.
 			// This object is an event emitter.
+			console.log('making the calls');	
+			call.on('answered', function(reqParams, res) {
+			console.log('call was answered');				
+			// Here, reqParams is a map of the POST vars Twilio sent when it requested our auto-urii
+
+			logger.debug('call on answered response \n');
+			logger.debug(res);
 			
-			call.on('answered', function(reqParams, resp) {
-			    // Here, reqParams is a map of the POST vars Twilio sent when it requested our auto-uri
+			logger.debug('call on answered reqParams \n');
+			logger.debug(reqParams);
 			    // res is a Twiml.Response object.
 			    // We can "append" Twiml elements to res. Let's append a Say verb element.
-			    resp.append(new Twiml.Say('Hey William! I hope you are having fun! it works'));
-			    resp.send();
+			    res.append(new Twiml.Say('Hey William! it works'));
+			    res.send();
+			
+
 		     	});
 		});
 	
@@ -71,6 +95,7 @@ app.get('/', function(req, res){
 
 });
 
+app.use(express.errorHandler({ showStack: true, dumpExceptions: true }));
 app.listen(3000);
 
 console.log('Express server started on port %s', app.address().port);
