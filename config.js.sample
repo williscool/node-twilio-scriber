@@ -5,3 +5,10 @@ module.exports.Credentials = {
     outgoing: '+18005555555',
     hostname: 'example.com'
 };
+
+module.exports.CallTestNumber = {
+
+  number: '+15555555555';
+
+};
+
