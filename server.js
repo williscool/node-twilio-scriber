@@ -5,8 +5,9 @@ var connect = require('connect');
 var express = require('express');
 var app = express.createServer();
 var valid = require('validator');
-var jade = require('jade');
 
+
+app.set('view engine', 'jade');
 app.use(express.cookieParser());
 app.use(express.session({ secret: "simple" }));
 
@@ -28,8 +29,12 @@ var phone = client.getOutgoingPhoneNumber(creds.outgoing);
 app.get('/', function(req, res){
 
 
+
 if (req.session.userDigits) {
+
+var flash = req.flash();
     req.flash('info', 'You pressed the number %s', req.session.userDigits);
+
 }
 
 	var jadeopts = {
@@ -45,13 +50,23 @@ if (req.session.userDigits) {
 	    }
 	};
 
-	res.render('form.jade', jadeopts);
+	res.render('home.jade', jadeopts);
 
 });
 
 app.get('/call', function(req,res){
 
-	var options = {};
+	var options = {
+		
+		locals:{
+		
+			serverinfo: {
+				url:creds.hostname,
+				
+			},
+
+		}
+	};
 	
 	res.render('makingCall.jade', options);
 
@@ -66,7 +81,9 @@ app.get('/call', function(req,res){
 			// The callback for makeCall is passed a "call" object.
 			// This object is an event emitter.
 			
-			console.log('making the calls');	
+			console.log('making the calls');
+			
+			//call to animation - v2	
                         call.on('answered', function(reqParams, res) {
 
                                 console.log('call was answered');
@@ -107,9 +124,15 @@ app.get('/call', function(req,res){
                                         var thank = new Twiml.Say('Thank you! Your answer has been stored. Please return to the home page.');
                                         res.append(thank).append(new Twiml.Hangup());
                                         res.send();
+
 			      });				
 				
                         });
+
+		       call.on('ended', function(reqParams) {
+				console.log('Call ended');
+			res.redirect('back');
+			});	
 
 	
 		});
@@ -117,7 +140,32 @@ app.get('/call', function(req,res){
 	});
 });
 
-app.use(express.errorHandler({ showStack: true, dumpExceptions: true }));
+
+app.get( '/test', function (req, res ) {
+
+
+	var options = {
+		
+		locals:{
+		
+			serverinfo: {
+				url:creds.hostname,
+				
+			},
+
+		}
+	};
+
+        res.render('makingCall.jade', options);
+
+
+
+});
+
+app.configure('development', function(){
+    app.use(express.static(__dirname + '/public'));
+    app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
 
 app.listen(3000);
 
