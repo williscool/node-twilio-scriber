@@ -1,9 +1,14 @@
+var logger = require('../node-logger').createLogger('transciber.log'); // logs to a file
+var creds = require('./config').Credentials;
+
+var connect = require('connect');
 var express = require('express');
 var app = express.createServer();
 var valid = require('validator');
 var jade = require('jade');
-var logger = require('../node-logger').createLogger('development.log'); // logs to a file
-var creds = require('./config').Credentials;
+
+app.use(express.cookieParser());
+app.use(express.session({ secret: "simple" }));
 
 var callnumber = require('./config').CallTestNumber.number;
 
@@ -19,7 +24,13 @@ var client = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
 // Another note: You may pass in either a phone number or a phone number sid.
 var phone = client.getOutgoingPhoneNumber(creds.outgoing);
 
+
 app.get('/', function(req, res){
+
+
+if (req.session.userDigits) {
+    req.flash('info', 'You pressed the number %s', req.session.userDigits);
+}
 
 	var jadeopts = {
 	    locals: {
@@ -34,24 +45,15 @@ app.get('/', function(req, res){
 	    }
 	};
 
-	jade.renderFile(__dirname + '/form.jade', jadeopts, function(err, html){
-	    if (err) throw err;
-	//    console.log(html);
-
-	    //res.send('<h1> Hi there. Im calling you! </h1>' + html );
-	    res.send(html);
-	});
+	res.render('form.jade', jadeopts);
 
 });
 
 app.get('/call', function(req,res){
 
 	var options = {};
-	jade.renderFile(__dirname + '/makingCall.jade', options, function(err, html){
-	    if (err) throw err;
-
-	    res.send(html);
-	}); 
+	
+	res.render('makingCall.jade', options);
 
 	console.log('call initiated');
 
@@ -59,35 +61,64 @@ app.get('/call', function(req,res){
 	// resource associated with the number and populates an internal data structure representing itself.
 	// The callback passed in is called when setup completes.
 	phone.setup(function() {
-	    // Hey, let's call my parents!
+	    // Hey, let's call the person 
 		phone.makeCall(callnumber, null, function(call) {
 			// The callback for makeCall is passed a "call" object.
 			// This object is an event emitter.
 			
 			console.log('making the calls');	
+                        call.on('answered', function(reqParams, res) {
 
-			call.on('answered', function(reqParams, res) {
-			console.log('call was answered');				
-			// Here, reqParams is a map of the POST vars Twilio sent when it requested our auto-urii
+                                console.log('call was answered');
+                                // Here, reqParams is a map of the POST vars Twilio sent when it requested our auto-urii
 
-			logger.debug('call on answered response \n');
-			logger.debug(res);
+                                    // res is a Twiml.Response object.
+                                    // We can "append" Twiml elements to res. Here we are making a gather elementi
+                                var lines = {
+                                        l1: 'Hello! Please Indicate if you would like to have your calls with us transcibed.',
+
+                                        l2: ' Press 1 if yes. 2 if no . followed by the pound sign.'
+                                };
+
+                                var say =  new Twiml.Say(lines.l1 + lines.l2);
+
+                                var gatherTwiML = new Twiml.Gather(say);
+                                var ifGatherFails = new Twiml.Say('We are sorry but we did not recieve any input. Goodbye');
+
+                                res.append(gatherTwiML).append(ifGatherFails);
+								
+
+                                logger.debug('call on answered Twiml response \n');
+                                logger.debug(res);
+                                
+				res.send();
+								
+			      gatherTwiML.on('gathered', function(reqParams, res) {
+				  // Here, reqParams is the posted data from Twilio's request
+				  // and Response is a Twiml.Response object.
+				  // With 'Gathers', Twilio's request includes a Digits param
+				  // that contains the digits the user entered.
 			
-			    // res is a Twiml.Response object.
-			    // We can "append" Twiml elements to res. Let's append a Say verb element.
-			    res.append(new Twiml.Say('Hey William! it works'));
-			    res.send();
-			
+				var num = reqParams.Digits;
+				  console.log('User pressed: #' + num);
 
-		     	});
+                                        req.session.userDigits = num;
+
+                                        var thank = new Twiml.Say('Thank you! Your answer has been stored. Please return to the home page.');
+                                        res.append(thank).append(new Twiml.Hangup());
+                                        res.send();
+			      });				
+				
+                        });
+
+	
 		});
 	
 	});
-
 });
 
-
 app.use(express.errorHandler({ showStack: true, dumpExceptions: true }));
+
 app.listen(3000);
 
 console.log('Express server started on port %s', app.address().port);

@@ -1,4 +1,3 @@
-!!! 5
 
 h1 Submit the form to make a call!
 form(method="get", action= serveropts.formActionUrl )
@@ -7,6 +6,9 @@ form(method="get", action= serveropts.formActionUrl )
     p
       label(for="user[name]") Username:
         input(type="text", name="user[name]", value=user.name)
+    p
+      label(for="user[phone]") Phone Number:
+        input(type="text", name="user[phone]", value=user.phone)
     p
       label(for="user[email]") Email:
         input(type="text", name="user[email]", value=user.email)

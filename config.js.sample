@@ -8,7 +8,7 @@ module.exports.Credentials = {
 
 module.exports.CallTestNumber = {
 
-  number: '+15555555555';
+  number: '+15555555555',
 
 };
 
