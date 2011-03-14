@@ -1,15 +1,17 @@
 var logger = require('../node-logger').createLogger('transciber.log'); // logs to a file
+var siologger = require('../node-logger').createLogger('sio.log'); // logs to a file
 var creds = require('./config').Credentials;
 
 var connect = require('connect');
 var express = require('express');
+var io = require('socket.io'); 
 var app = express.createServer();
 var valid = require('validator');
 
 
 app.set('view engine', 'jade');
 app.use(express.cookieParser());
-app.use(express.session({ secret: "simple" }));
+app.use(express.session({ secret: "simple", cookie: { httpOnly: false } }));
 
 var callnumber = require('./config').CallTestNumber.number;
 
@@ -26,16 +28,20 @@ var client = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
 var phone = client.getOutgoingPhoneNumber(creds.outgoing);
 
 
+app.listen(3000);
+
+var socket = io.listen(app); 
+
+
 app.get('/', function(req, res){
 
 
+res.cookie('userDigits', 'how are you?', { maxAge: 900000 });
 
-if (req.session.userDigits) {
 
-var flash = req.flash();
-    req.flash('info', 'You pressed the number %s', req.session.userDigits);
-
-}
+	if(!req.session){
+		req.session.regenerate();
+	}
 
 	var jadeopts = {
 	    locals: {
@@ -51,6 +57,18 @@ var flash = req.flash();
 	};
 
 	res.render('home.jade', jadeopts);
+
+});
+
+app.get('/logout', function(req,res){
+
+	res.clearCookie('userDigits');
+	res.clearCookie('hello');
+
+	req.session.destroy(function(err){
+	res.redirect('/');
+});
+	
 
 });
 
@@ -120,29 +138,64 @@ app.get('/call', function(req,res){
 				  console.log('User pressed: #' + num);
 
                                         req.session.userDigits = num;
-
+                                        req.cookies.userDigits = num;
                                         var thank = new Twiml.Say('Thank you! Your answer has been stored. Please return to the home page.');
                                         res.append(thank).append(new Twiml.Hangup());
                                         res.send();
 
 			      });				
-				
+			
+
                         });
 
 		       call.on('ended', function(reqParams) {
 				console.log('Call ended');
-			res.redirect('back');
+			res.redirect('/');
 			});	
 
 	
 		});
-	
+
 	});
+});
+
+app.post( '/ajaxhandler', function (req, res ) {
+/* STUB : we can use this end point instead of having to reuse the socket code at every route
+/ with the client.html example here http://till.klampaeckel.de/blog/archives/133-node.js-socket.io-fun.html
+// */
+
+  if (req.xhr) {
+    // respond with the each user in the collection
+    // passed to the "user" view
+  }
+
 });
 
 
 app.get( '/test', function (req, res ) {
 
+
+	res.cookie( 'userDigits' , '2');
+
+	socket.on('connection', function(client){ 
+	  //...
+
+	  // Success!  Now listen to messages to be received
+	  client.on('message', function(message){
+	  //just print out 'message' to get the sockie ide
+		if(message.sid) {
+			siologger.debug('Client Session Id', message.sid );
+		}
+		
+		client.send('hello client');
+		
+	  });
+
+	  client.on('disconnect',function(){
+		siologger.debug('Server has disconnected');
+	  });
+
+	}); 
 
 	var options = {
 		
@@ -167,6 +220,5 @@ app.configure('development', function(){
     app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
 });
 
-app.listen(3000);
 
 console.log('Express server started on port %s', app.address().port);
