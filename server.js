@@ -37,6 +37,27 @@ app.get('/call', function(req,res){
 
 	res.render('makingCall.jade', {});
 
+        socket.on('connection', function(client){
+
+          // Success!  Now listen to messages to be received
+          client.on('message', function(message){
+          //just print out 'message' to get the sockie ide
+                if(message.sid) {
+                        siologger.debug('Client Session Id', message.sid);
+                } else {
+			res.redirect('/');
+		}
+
+                client.send('hello client');
+
+          });
+
+          client.on('disconnect',function(){
+                siologger.debug('Server has disconnected');
+          });
+
+        });
+
 	console.log('call initiated');
 
 	// Phone.setup() configures the phone number object. It requests the phone number instance
@@ -85,9 +106,9 @@ app.get('/call', function(req,res){
 			
 				var num = reqParams.Digits;
 				  console.log('User pressed: #' + num);
-
-                                        req.session.userDigits = num;
-                                        req.cookies.userDigits = num;
+					// send to client
+					// client.send({userDigits:num})
+					
                                         var thank = new Twiml.Say('Thank you! Your answer has been stored. Please return to the home page.');
                                         res.append(thank).append(new Twiml.Hangup());
                                         res.send();
