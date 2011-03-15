@@ -13,6 +13,7 @@ app.set('view engine', 'jade');
 app.use(express.cookieParser());
 app.use(express.session({ secret: "simple", cookie: { httpOnly: false } }));
 
+
 var callnumber = require('./config').CallTestNumber.number;
 
 
@@ -32,61 +33,9 @@ app.listen(3000);
 
 var socket = io.listen(app); 
 
-
-app.get('/', function(req, res){
-
-
-res.cookie('userDigits', 'how are you?', { maxAge: 900000 });
-
-
-	if(!req.session){
-		req.session.regenerate();
-	}
-
-	var jadeopts = {
-	    locals: {
-		user: {
-		    name: 'Will',
-		    email: 'youname@malinator.com',
-		},
-
-		serveropts: {
-		    formActionUrl: '/call',
-		}
-	    }
-	};
-
-	res.render('home.jade', jadeopts);
-
-});
-
-app.get('/logout', function(req,res){
-
-	res.clearCookie('userDigits');
-	res.clearCookie('hello');
-
-	req.session.destroy(function(err){
-	res.redirect('/');
-});
-	
-
-});
-
 app.get('/call', function(req,res){
 
-	var options = {
-		
-		locals:{
-		
-			serverinfo: {
-				url:creds.hostname,
-				
-			},
-
-		}
-	};
-	
-	res.render('makingCall.jade', options);
+	res.render('makingCall.jade', {});
 
 	console.log('call initiated');
 
@@ -159,61 +108,46 @@ app.get('/call', function(req,res){
 	});
 });
 
-app.post( '/ajaxhandler', function (req, res ) {
-/* STUB : we can use this end point instead of having to reuse the socket code at every route
-/ with the client.html example here http://till.klampaeckel.de/blog/archives/133-node.js-socket.io-fun.html
-// */
 
-  if (req.xhr) {
-    // respond with the each user in the collection
-    // passed to the "user" view
-  }
+// test page
+var pageopts = {
 
-});
+                locals:{
 
+                        serverinfo: {
+                                url:creds.hostname,
 
-app.get( '/test', function (req, res ) {
+                        },
 
+                },
+	
+		socket:socket
+};
 
-	res.cookie( 'userDigits' , '2');
-
-	socket.on('connection', function(client){ 
-	  //...
-
-	  // Success!  Now listen to messages to be received
-	  client.on('message', function(message){
-	  //just print out 'message' to get the sockie ide
-		if(message.sid) {
-			siologger.debug('Client Session Id', message.sid );
-		}
-		
-		client.send('hello client');
-		
-	  });
-
-	  client.on('disconnect',function(){
-		siologger.debug('Server has disconnected');
-	  });
-
-	}); 
-
-	var options = {
-		
-		locals:{
-		
-			serverinfo: {
-				url:creds.hostname,
-				
-			},
-
-		}
-	};
-
-        res.render('makingCall.jade', options);
+require('./controllers/test')(app, pageopts);
 
 
 
-});
+// site root
+var jadeopts = {
+    locals: {
+	user: {
+	    name: 'Will',
+	    email: 'youname@malinator.com',
+	},
+
+	serveropts: {
+	    formActionUrl: '/call',
+	}
+    }
+};
+require('./controllers/root')(app, jadeopts);
+
+// logout page
+require('./controllers/logout')(app, jadeopts);
+
+
+
 
 app.configure('development', function(){
     app.use(express.static(__dirname + '/public'));
