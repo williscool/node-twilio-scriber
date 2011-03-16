@@ -5,3 +5,9 @@ div#message {
 	height:20px;
 	display:none;
 }
+
+div.callresponse {
+
+display:none;
+
+}

@@ -34,6 +34,10 @@
 		handler.GetTime = function() {
 			handler._trigger('getTime', '');
 		}
+		
+		handler.sendEvent = function(ev,msg) {
+			handler._trigger(ev,msg);
+		}
 
 	return handler;
 
@@ -63,8 +67,8 @@ $(document).ready( function () {
 
 		if (messageContainer.length) {
 			
-		messageContainer.effect("pulsate", { times:6 }, 1500);
-		messageContainer.text(message);
+			messageContainer.effect("pulsate", { times:6 }, 1500);
+			messageContainer.text(message);
 		
 		}
 
@@ -74,6 +78,28 @@ $(document).ready( function () {
 	$(jqSH).bind('greeting', function(event, message){
 		if(window.console) console.log(message);
 	
+	});
+
+	
+	// what happens when you submit the form on the logged in page	
+	$("form#rootloggedin").submit(function() {
+	
+		$("form span").text("You clicked the button!").show().fadeOut(1000);
+
+		var respCont = $("div.callresponse:last");
+		
+		// make a new element based off of the other old and ad it at the bottom	
+		$(respCont).before(respCont.clone());
+		
+		// display the new element
+		respCont.show("slow");
+		
+		// header for most recent 
+		respCont.find('h3').text('where i would let people know they are being called');
+		
+		respCont.find('p').text('transcription text');
+	
+		return false;
 	});
 
 });

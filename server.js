@@ -33,6 +33,23 @@ app.listen(3000);
 
 var socket = io.listen(app); 
 
+// site root
+var jadeopts = {
+    locals: {
+	user: {
+	    name: 'Will',
+	    email: 'youname@malinator.com',
+	},
+
+	serveropts: {
+	    formActionUrl: '/call',
+	}
+    }
+};
+require('./controllers/root')(app, jadeopts);
+
+
+// call router
 app.get('/call', function(req,res){
 
 	res.render('makingCall.jade', {});
@@ -147,22 +164,6 @@ var pageopts = {
 
 require('./controllers/test')(app, pageopts);
 
-
-
-// site root
-var jadeopts = {
-    locals: {
-	user: {
-	    name: 'Will',
-	    email: 'youname@malinator.com',
-	},
-
-	serveropts: {
-	    formActionUrl: '/call',
-	}
-    }
-};
-require('./controllers/root')(app, jadeopts);
 
 // logout page
 require('./controllers/logout')(app, jadeopts);
