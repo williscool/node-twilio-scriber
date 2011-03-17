@@ -8,6 +8,9 @@ var io = require('socket.io');
 var app = express.createServer();
 var valid = require('validator');
 
+var sockH = require('./lib/sockethandler').config(app);
+
+//console.log(sockH);
 
 app.set('view engine', 'jade');
 app.use(express.cookieParser());
@@ -21,17 +24,14 @@ var TwilioClient = require('../node-twilio/lib').Client,
       Twiml = require('../node-twilio/lib').Twiml,
       util = require('util');
 
-var client = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
+var tclient = new TwilioClient(creds.sid, creds.authToken, creds.hostname);
 
 // Let's get an OutgoingPhoneNumber object
 // Note: It is assumed that +16067777777 is a Twilio phone number available from your account
 // Another note: You may pass in either a phone number or a phone number sid.
-var phone = client.getOutgoingPhoneNumber(creds.outgoing);
-
+var phone = tclient.getOutgoingPhoneNumber(creds.outgoing);
 
 app.listen(3000);
-
-var socket = io.listen(app); 
 
 // site root
 var jadeopts = {
@@ -50,30 +50,9 @@ require('./controllers/root')(app, jadeopts);
 
 
 // call router
-app.get('/call', function(req,res){
+app.post('/call', function(req,res){
 
 	res.render('makingCall.jade', {});
-
-        socket.on('connection', function(client){
-
-          // Success!  Now listen to messages to be received
-          client.on('message', function(message){
-          //just print out 'message' to get the sockie ide
-                if(message.sid) {
-                        siologger.debug('Client Session Id', message.sid);
-                } else {
-			res.redirect('/');
-		}
-
-                client.send('hello client');
-
-          });
-
-          client.on('disconnect',function(){
-                siologger.debug('Server has disconnected');
-          });
-
-        });
 
 	console.log('call initiated');
 
@@ -87,7 +66,7 @@ app.get('/call', function(req,res){
 			// This object is an event emitter.
 			
 			console.log('making the calls');
-			
+			sockH.calling('Now Calling you');
 			//call to animation - v2	
                         call.on('answered', function(reqParams, res) {
 
@@ -125,7 +104,9 @@ app.get('/call', function(req,res){
 				  console.log('User pressed: #' + num);
 					// send to client
 					// client.send({userDigits:num})
-					
+				
+					sockH.gotDigits(num);
+						
                                         var thank = new Twiml.Say('Thank you! Your answer has been stored. Please return to the home page.');
                                         res.append(thank).append(new Twiml.Hangup());
                                         res.send();
@@ -159,10 +140,21 @@ var pageopts = {
 
                 },
 	
-		socket:socket
+		//socket:socket
 };
 
-require('./controllers/test')(app, pageopts);
+//require('./controllers/test')(app, pageopts);
+
+app.get("/shtest", function (req, res){
+
+  res.render('makingCall.jade', pageopts);
+	
+ sockH.calling('im caliing you !');
+	
+ sockH.gotDigits(8675309);
+
+});
+
 
 
 // logout page

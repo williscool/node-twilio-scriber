@@ -19,12 +19,14 @@
 			if('event' in obj) {
 			    $(handler).trigger(obj.event, obj.data);
 			}
+		
+		if(window.console) console.log('The '+ obj.event +' was fired.');
 		});
 
 
 		// Add a disconnect listener
 		socket.on('disconnect',function() {
-			  console.log('The client has disconnected!');
+			  console.log('The server has disconnected!');
 		});
 
 		handler._trigger = function(event, data) {
