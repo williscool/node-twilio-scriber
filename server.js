@@ -67,8 +67,9 @@ app.post('/call', function(req,res){
 			
 			console.log('making the calls');
 			sockH.calling('Now Calling you');
+
 			//call to animation - v2	
-                        call.on('answered', function(reqParams, res) {
+                        call.once('answered', function(reqParams, res) {
 
                                 console.log('call was answered');
                                 // Here, reqParams is a map of the POST vars Twilio sent when it requested our auto-urii
@@ -95,18 +96,18 @@ app.post('/call', function(req,res){
 				res.send();
 								
 			      gatherTwiML.on('gathered', function(reqParams, res) {
-				  // Here, reqParams is the posted data from Twilio's request
+				console.log(reqParams);	  
+				// Here, reqParams is the posted data from Twilio's request
 				  // and Response is a Twiml.Response object.
 				  // With 'Gathers', Twilio's request includes a Digits param
 				  // that contains the digits the user entered.
-			
+					
 				var num = reqParams.Digits;
 				  console.log('User pressed: #' + num);
+
 					// send to client
-					// client.send({userDigits:num})
-				
 					sockH.gotDigits(num);
-						
+			
                                         var thank = new Twiml.Say('Thank you! Your answer has been stored. Please return to the home page.');
                                         res.append(thank).append(new Twiml.Hangup());
                                         res.send();

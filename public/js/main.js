@@ -78,6 +78,7 @@ $(document).ready( function () {
 	
 	// greet the user on their console
 	$(jqSH).bind('greeting', function(event, message){
+		
 		if(window.console) console.log(message);
 	
 	});
