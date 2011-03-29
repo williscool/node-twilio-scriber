@@ -9,13 +9,27 @@ it uses node.js of course
 
 among other things
 
+(Got really tired of all node.js and/or socket.io demo's being of chat room apps)
 
-usages.
+
+usage
+
+1) setup
+
+make a file called config.js based on the included config.sample.js with your twilio credentials
+
+2) run 
+
+ node server.js
 
 
-run 
+Right now it is VERY much a work in progress. 
 
-node server.js
+- When call you to confirm recording and its supposed to saves your number to a cookie you have to refesh the homepage once to get it work properly
+
+- It will only work with saving the number you press when it calls to confirm once. If you logout and try again it will choke
+
+- the recording page is just a wireframe right now. It shows where this will go but doesn't do actual recording yet
 
 
 
