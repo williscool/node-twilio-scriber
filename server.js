@@ -64,8 +64,13 @@ app.post('/call', function(req,res){
             // The callback for makeCall is passed a "call" object.
             // This object is an event emitter.
             
-            console.log('making the calls');
-            sockH.calling('Now Calling you');
+             console.log('making the calls');
+             sockH.once('gotClient', function(seh){
+            
+                seh.calling('Now Calling you');
+
+             });
+
 
             //call to animation - v2    
             call.once('answered', function(reqParams, res) {
@@ -106,7 +111,10 @@ app.post('/call', function(req,res){
                     console.log('User pressed: #' + num);
 
                     // send to client
-                    sockH.gotDigits(num);
+
+                    sockH.once('gotClient', function(seh){
+                        seh.gotDigits(num);
+                    });
 
                     var thank = new Twiml.Say('Thank you! Your answer has been stored. Please return to the home page.');
                     res.append(thank).append(new Twiml.Hangup());
@@ -148,14 +156,17 @@ var pageopts = {
 
 app.get("/shtest", function (req, res){
 
-  res.render('makingCall.jade', pageopts);
-    
- sockH.calling('im caliing you !');
-    
- sockH.gotDigits(8675309);
+    res.render('makingCall.jade', pageopts);
 
+     sockH.once('gotClient', function(seh){
+
+        seh.greeting('hi there client. this is a bit easier to write');
+        seh.calling('im caliing you!');
+        seh.gotDigits(8675309);
+
+     });
+    
 });
-
 
 
 // logout page
