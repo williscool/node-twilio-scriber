@@ -29,7 +29,7 @@ Right now it is VERY much a work in progress.
 
 - It will only work with saving the number you press when it calls to confirm once. If you logout and try again it will choke
 
-- the recording page is just a wireframe right now. It shows where this will go but doesn't do actual recording yet
+- the recording page is just a wireframe right now. It shows where stuff will go but doesn't do actual recording yet
 
 
 
