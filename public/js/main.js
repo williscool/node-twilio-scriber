@@ -23,7 +23,6 @@
 		if(window.console) console.log('The '+ obj.event +' was fired.');
 		});
 
-
 		// Add a disconnect listener
 		socket.on('disconnect',function() {
 			  console.log('The server has disconnected!');
@@ -82,11 +81,15 @@ $(document).ready( function () {
 		if(window.console) console.log(message);
 	
 	});
-
 	
 	// what happens when you submit the form on the logged in page	
 	$("form#rootloggedin").submit(function() {
-	
+   
+        // sending the record event. The chocolate text is random and not used. 
+        // Just saying that because I always hate when people do that and don't tell you lol
+         
+        jqSH.sendEvent('recordRequested','chocolate');
+        	
 		$("form span").text("You clicked the button!").show().fadeOut(1000);
 
 		var respCont = $("div.callresponse:last");
@@ -96,12 +99,30 @@ $(document).ready( function () {
 		
 		// display the new element
 		respCont.show("slow");
+
+        // blank out the message text box. the call warning text box will be replaced immediately 
+        respCont.find('p').text('');
 		
-		// header for most recent 
-		respCont.find('h3').text('where i would let people know they are being called');
-		
-		respCont.find('p').text('transcription text');
-	
+        $(jqSH).bind('recorderCalling', function(event, message){
+            
+            // header for most recent call warning header 
+            respCont.find('h3').text(message).fadeIn(1000);
+            
+            //lock the submit button so we don't get more than one request at a time
+            $("form#rootloggedin input").attr('disabled', 'disabled');
+
+        });
+
+        $(jqSH).bind('messageTranscribed', function(event, message){
+            
+            //display the message text! 
+		    respCont.find('p').text(message);
+
+            // request finished so we're unlocking the submit button
+            $("form#rootloggedin input").removeAttr('disabled');
+
+        });
+
 		return false;
 	});
 

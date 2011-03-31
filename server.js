@@ -33,14 +33,15 @@ app.listen(3000);
 // site root
 var jadeopts = {
     locals: {
-    user: {
-        name: 'Will',
-        email: 'youname@malinator.com',
-    },
+        user: {
+            name: 'Will',
+            email: 'youname@malinator.com',
+        },
 
-    serveropts: {
-        formActionUrl: '/call',
-    }
+        serveropts: {
+            formActionUrl: '/call',
+            sH: sockH,
+        }
     }
 };
 require('./controllers/root')(app, jadeopts);
@@ -158,7 +159,7 @@ app.get("/shtest", function (req, res){
 
         seh.greeting('hi there client. this is a bit easier to write');
         seh.calling('im caliing you!');
-        seh.gotDigits(8675309);
+        seh.gotDigits(511);
 
      });
     
