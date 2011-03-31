@@ -25,7 +25,7 @@ make a file called `config.js` based on the included `config.sample.js` with you
 
 2) run 
 
-    `node server.js`
+    node server.js
 
 ## Known Issues
 
