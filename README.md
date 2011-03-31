@@ -27,14 +27,13 @@ make a file called `config.js` based on the included `config.sample.js` with you
 
     node server.js
 
+3) go to the root of whatever server you are on ... <TODO: finish this!>
+
 ## Known Issues
 
 ### Right now it is VERY much a work in progress. 
 
-- When call you to confirm recording and its supposed to saves your number to a cookie you have to refesh the homepage once to get it work properly
-
 - the recording page is just a wireframe right now. It shows where stuff will go but doesn't do actual recording yet
-
 
 
 ## ALSO DO NOT USE THIS SERVER IN PRODUCTION AS IS.
