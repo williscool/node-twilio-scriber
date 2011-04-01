@@ -52,6 +52,15 @@ $(document).ready( function () {
 	var sid = $.cookies.get('connect.sid');
 
 	var jqSH = $.socketHandler(sid);
+	
+    // users phone number
+	$(jqSH).bind('gotUserDetails', function(event, info){
+
+		$.cookies.set('userName', info.name);
+		$.cookies.set('phoneNumber', info.phone);
+		$.cookies.set('email', info.email);
+
+	});
 
 	//once the user answers with their digit
 	$(jqSH).bind('gotDigits', function(event, digits){
@@ -59,7 +68,6 @@ $(document).ready( function () {
 		$.cookies.set('userDigits', digits);
 
 	});
-
 	
 	//the twilio is calling the client
 	$(jqSH).bind('calling', function(event, message){

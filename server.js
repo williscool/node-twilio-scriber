@@ -12,7 +12,7 @@ var sockH = require('./lib/sockethandler').config(app);
 app.set('view engine', 'jade');
 app.use(express.cookieParser());
 app.use(express.session({ secret: "simple", cookie: { httpOnly: false } }));
-
+app.use(express.bodyParser());
 
 var callnumber = require('./config').CallTestNumber.number;
 
@@ -35,11 +35,13 @@ var jadeopts = {
     locals: {
         user: {
             name: 'Will',
+            phone: callnumber,
             email: 'youname@malinator.com',
         },
 
         serveropts: {
             formActionUrl: '/call',
+            phn: phone,
             sH: sockH,
         }
     }
@@ -49,11 +51,14 @@ require('./controllers/root')(app, jadeopts);
 
 // call router
 app.post('/call', function(req,res){
+    // need to check for a phone number and redirect if there is none with a warning!
 
     res.render('makingCall.jade', {});
 
     sockH.once('gotClient', function(seh){
     
+        seh._trigger('gotUserDetails', req.body.user);
+            
         console.log('call initiated');
 
         // Phone.setup() configures the phone number object. It requests the phone number instance
@@ -61,7 +66,7 @@ app.post('/call', function(req,res){
         // The callback passed in is called when setup completes.
         phone.setup(function() {
             // Hey, let's call the person 
-            phone.makeCall(callnumber, null, function(call) {
+            phone.makeCall(req.body.user.phone, null, function(call) {
                 // The callback for makeCall is passed a "call" object.
                 // This object is an event emitter.
                 
@@ -151,9 +156,23 @@ var pageopts = {
 
 //require('./controllers/test')(app, pageopts);
 
-app.get("/shtest", function (req, res){
+//REMEMBER TO CHANGE THIS TO A GET IF YOU WANT TO USE A BROWSER TO SEE IT.
+app.post("/shtest", function (req, res){
 
     res.render('makingCall.jade', pageopts);
+    
+    if(req.body.user != 'undefined'){
+
+     sockH.once('gotClient', function(seh){
+        
+        seh._trigger('gotUserDetails', req.body.user);
+        seh.greeting('hi there client. this is a bit easier to write');
+        seh.calling('im caliing you!');
+        seh.gotDigits(511);
+
+     });
+        
+    } else{
 
      sockH.once('gotClient', function(seh){
 
@@ -162,14 +181,19 @@ app.get("/shtest", function (req, res){
         seh.gotDigits(511);
 
      });
-    
+
+    }
 });
 
+app.get('/cookietest', function(req, res) {
+
+     console.log(req.cookies);
+     res.redirect('/');
+   
+});
 
 // logout page
 require('./controllers/logout')(app, jadeopts);
-
-
 
 
 app.configure('development', function(){
