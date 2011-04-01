@@ -131,6 +131,20 @@ $(document).ready( function () {
 
         });
 
+
+        // reenable the button in a couple of seconds if the call errored / timed out
+        setTimeout( function(){
+                
+            if( $("div.callresponse:last p").text() == '') { 
+                
+                $("form#rootloggedin input").removeAttr('disabled');
+
+                $("div.callresponse:last p").text('An application error has occured.'); 
+            
+            }
+                    
+        }, 30000);
+        
 		return false;
 	});
 
