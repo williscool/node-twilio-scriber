@@ -38,11 +38,11 @@ make a file called `config.js` based on the included `config.sample.js` with you
 
 ### Right now it is VERY much a work in progress. 
 
-- The login takes 2 shots to work. (Click submit have it it call you. It will choke. Don't restart the server. Go back to the home page and submit again it will work. Don't quite know why though)
+- The login may randomly take more than one shot to work. (Click submit have it it call you. It may choke. Don't restart the server, just go back to the home page and submit again it will work. Don't quite know why though)
 
 - the recording page view works correctly but twilio communcation is a bit off. I think it because of mutating the global response object. working on this now.
 
-- authentication is broken / non-existant so messages may be sent to the wrong client. Socket.io messages that is so transcribed recordings as well login ones. 
+- authentication is broken / non-existant so messages may be sent to the wrong client. Socket.io messages that is so transcribed recordings as well login ones. This only an issue if more than one person logs in.
 
 ## ALSO DO NOT USE THIS SERVER IN PRODUCTION AS IS.
 
@@ -50,4 +50,4 @@ make a file called `config.js` based on the included `config.sample.js` with you
 
 - It doesn't use httponly for its session cookies so session hijacking (and thus message stealing) is possible
 
-- again auth is broken so logins could get mixed up and diffent people could get each others messages.
+- again auth is broken so logins could get mixed up and different people could get each others messages if multple people login.
