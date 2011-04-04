@@ -5,7 +5,8 @@ var creds = require('./config').Credentials;
 var connect = require('connect');
 var express = require('express');
 var app = express.createServer();
-var valid = require('validator');
+var check = require('validator').check,
+    sanitize = require('validator').sanitize;
 
 var sockH = require('./lib/sockethandler').config(app);
 
@@ -56,8 +57,14 @@ app.post('/call', function(req,res){
     res.render('makingCall.jade', {});
 
     sockH.once('gotClient', function(seh){
+
+       userinfo = req.body.user;
+      // kill any cross site scripting attacks 
+       userinfo.email = sanitize(userinfo.email).xss();
+       userinfo.phone = sanitize(userinfo.phone).xss();
+       userinfo.name = sanitize(userinfo.name).xss();
     
-        seh._trigger('gotUserDetails', req.body.user);
+        seh._trigger('gotUserDetails', userinfo);
             
         console.log('call initiated');
 
@@ -140,16 +147,16 @@ app.post('/call', function(req,res){
 // test page
 var pageopts = {
 
-                locals:{
+    locals:{
 
-                        serverinfo: {
-                                url:creds.hostname,
+        serverinfo: {
+            
+            url:creds.hostname,
 
-                        },
+        },
 
-                },
-    
-        //socket:socket
+   },
+
 };
 
 //require('./controllers/test')(app, pageopts);
@@ -161,9 +168,17 @@ app.post("/shtest", function (req, res){
     
     if(req.body.user != 'undefined'){
 
+       userinfo = req.body.user;
+       
+       userinfo.email = sanitize(userinfo.email).xss();
+       userinfo.phone = sanitize(userinfo.phone).xss();
+       userinfo.name = sanitize(userinfo.name).xss();
+
+       console.log(userinfo);
+
      sockH.once('gotClient', function(seh){
-        
-        seh._trigger('gotUserDetails', req.body.user);
+           
+        seh._trigger('gotUserDetails', userinfo);
         seh.greeting('hi there client. this is a bit easier to write');
         seh.calling('im caliing you!');
         seh.gotDigits(511);

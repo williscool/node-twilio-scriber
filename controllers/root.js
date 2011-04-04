@@ -30,12 +30,12 @@ module.exports = function(app,opts) {
                     // Hey, let's call the person
                     phone.makeCall( req.cookies.phonenumber, null, function(call) {
                        
-                        // tell client they are being called to record a message
-                        seh._trigger('recorderCalling', 'Now calling you so you can leave a message');
+                        // tell client they are being called to record a messag
+                        seh._trigger('recorderCalling', 'Now calling you so you can leave a message. Hangup when you are done.');
                                                                         
                         call.once('answered', function(reqParams, res){
                            
-                           var say = new Twiml.Say('Hello! Please leave a message after the beep.'); 
+                           var say = new Twiml.Say('Hello! Please leave a message after the beep. Hangup when you are done. My feelings wont be hurt promise'); 
                            var recorder = new Twiml.Record({transcribe: true, playBeep: true, timeout: 10});
                            
                             res.append(say).append(recorder);
@@ -44,6 +44,8 @@ module.exports = function(app,opts) {
                             recorder.on('recorded', function(reqParams, res ){
                                
                                console.log('Recording is at: ' + reqParams.RecordingUrl);
+
+                               seh._trigger('recordingCompleted', 'Recording was completed transciption is now in progress.');
                                 
                             });
 
@@ -51,7 +53,7 @@ module.exports = function(app,opts) {
                               
                               // once the message is received display it
 
-                              seh._trigger('messageTranscribed', reqParams.TranscriptionText );
+                              seh._trigger('messageTranscribed', reqParams);
                                 
                             });
 

@@ -114,17 +114,24 @@ $(document).ready( function () {
         $(jqSH).bind('recorderCalling', function(event, message){
             
             // header for most recent call warning header 
-            respCont.find('h3').text(message).fadeIn(1000);
+            respCont.find('h3').text(message).fadeIn(1000).effect('pulsate',1500);
             
             //lock the submit button so we don't get more than one request at a time
             $("form#rootloggedin input").attr('disabled', 'disabled');
 
         });
+        
+        $(jqSH).bind('recordingCompleted', function(event, message){
+            
+            // Recoding is done. Waiting for transcription 
+            respCont.find('p').text(message).fadeIn(1000).effect('pulsate',1500);
+            
+        });
 
-        $(jqSH).bind('messageTranscribed', function(event, message){
+        $(jqSH).bind('messageTranscribed', function(event, data){
             
             //display the message text! 
-		    respCont.find('p').text(message);
+		    respCont.find('p').text(data.TranscriptionText).append( ' <a href="' + data.RecordingUrl + '">Check out the recording here </a>');
 
             // request finished so we're unlocking the submit button
             $("form#rootloggedin input").removeAttr('disabled');
@@ -143,7 +150,7 @@ $(document).ready( function () {
             
             }
                     
-        }, 30000);
+        }, 60000);
         
 		return false;
 	});

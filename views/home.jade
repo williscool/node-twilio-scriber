@@ -11,6 +11,9 @@ form(method="post", action= serveropts.formActionUrl )
     p
       label(for="user[phone]") Phone Number:
         input(type="text", name="user[phone]", value=user.phone)
+      |  Enter a valid 
+      | US Phone Number with a the country code (+1) and no other characters but numbers
+      | i.e. <em> +16269239971 </em>.
     p
       label(for="user[email]") Email:
         input(type="text", name="user[email]", value=user.email)
