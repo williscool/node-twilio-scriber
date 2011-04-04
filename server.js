@@ -1,5 +1,3 @@
-var logger = require('../node-logger').createLogger('transciber.log'); // logs to a file
-var siologger = require('../node-logger').createLogger('sio.log'); // logs to a file
 var creds = require('./config').Credentials;
 
 var connect = require('connect');
@@ -102,8 +100,6 @@ app.post('/call', function(req,res){
 
                     res.append(gatherTwiML).append(ifGatherFails);
 
-                    logger.debug('call on answered Twiml response \n',res);
-                                
                     res.send();
                                     
                     gatherTwiML.on('gathered', function(reqParams, res) {
