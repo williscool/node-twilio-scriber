@@ -1,3 +1,6 @@
+var Twiml = require('../../node-twilio/lib').Twiml;
+var util = require('util');
+
 module.exports = function(app,opts) {
 
 	app.get('/', function(req, res){
@@ -15,7 +18,6 @@ module.exports = function(app,opts) {
             var phone = opts.locals.serveropts.phn;
             var sockH = opts.locals.serveropts.sH;
      
-      
             sockH.once('gotClient', function(seh){
                 
                 sockH.on('recordRequested', function() {
@@ -27,14 +29,17 @@ module.exports = function(app,opts) {
 
                     // Hey, let's call the person
                     phone.makeCall( req.cookies.phonenumber, null, function(call) {
-                        
+                       
                         // tell client they are being called to record a message
                         seh._trigger('recorderCalling', 'Now calling you so you can leave a message');
                                                                         
                         call.once('answered', function(reqParams, res){
-                        
+                           
                            var say = new Twiml.Say('Hello! Please leave a message after the beep.'); 
                            var recorder = new Twiml.Record({transcribe: true, playBeep: true, timeout: 10});
+                           
+                            res.append(say).append(recorder);
+                            res.send();
                             
                             recorder.on('recorded', function(reqParams, res ){
                                
@@ -49,9 +54,6 @@ module.exports = function(app,opts) {
                               seh._trigger('messageTranscribed', reqParams.TranscriptionText );
                                 
                             });
-
-                            res.append(say).append(recorder);
-                            res.send();
 
                         });
 

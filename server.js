@@ -95,9 +95,7 @@ app.post('/call', function(req,res){
 
                     res.append(gatherTwiML).append(ifGatherFails);
 
-
-                    logger.debug('call on answered Twiml response \n');
-                    logger.debug(res);
+                    logger.debug('call on answered Twiml response \n',res);
                                 
                     res.send();
                                     
@@ -125,7 +123,7 @@ app.post('/call', function(req,res){
 
                 });
 
-                call.on('ended', function(reqParams) {
+                call.once('ended', function(reqParams) {
                     console.log('Call ended');
                     res.redirect('/');
                 }); 
