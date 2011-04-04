@@ -1,4 +1,4 @@
-var Twiml = require('../../node-twilio/lib').Twiml;
+var Twiml = require('../node-twilio/lib').Twiml;
 var util = require('util');
 
 module.exports = function(app,opts) {
