@@ -16,8 +16,8 @@ app.use(express.bodyParser());
 var callnumber = require('./config').CallTestNumber.number;
 
 
-var TwilioClient = require('../node-twilio/lib').Client,
-      Twiml = require('../node-twilio/lib').Twiml,
+var TwilioClient = require('./node-twilio/lib').Client,
+      Twiml = require('./node-twilio/lib').Twiml,
       util = require('util');
 
 var tclient = new TwilioClient(creds.sid, creds.authToken, creds.hostname);

@@ -1,0 +1,3 @@
+[submodule "node-twilio"]
+	path = node-twilio
+	url = git@github.com:williscool/node-twilio.git
